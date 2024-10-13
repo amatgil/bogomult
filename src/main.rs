@@ -1,10 +1,11 @@
 use rand::{rngs::SmallRng, Rng, SeedableRng};
+use std::hint::black_box;
 use std::ops::Mul;
 use std::time::Instant;
 
 fn main() {
-    const ITERS_PER_BITS: u128 = 200;
     const MAX_BITS: u32 = 32;
+    const ITERS_PER_BITS: u128 = 200;
 
     println!("nº bits,it nº,temps bogo (us),temps mult(us),x,y");
     for bits in 2..MAX_BITS {
@@ -35,7 +36,7 @@ fn bogomult(x: u128, y: u128) -> u128 {
 /// Retorna els millisegons que es tarda en executar `f(x, y)`
 fn time(x: u128, y: u128, f: impl Fn(u128, u128) -> u128) -> u128 {
     let start = Instant::now();
-    let _ = f(x, y);
+    let _ = black_box(f(x, y));
     let end = Instant::now();
 
     (end-start).as_micros()
