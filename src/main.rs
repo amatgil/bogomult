@@ -6,16 +6,15 @@ fn main() {
     const ITERS_PER_BITS: u128 = 200;
     const MAX_BITS: u32 = 32;
 
-    println!("it nº,nº bits,algoritme,temps(us),{:010},{:010}", 'x', 'y');
-    for n in 0..ITERS_PER_BITS {
-        for (algo, algo_name) in [(bogomult as fn(u128, u128) -> u128, "bogomult"), (u128::mul as fn(u128, u128) -> u128, "*")] {
-            for bits in 0..MAX_BITS {
-                eprintln!("Calculant {bits} bits (iter {n})");
-                let x = rand_with_bits(bits);
-                let y = rand_with_bits(bits);
-                let t = time(x, y, algo);
-                println!("{:05},{:04},{:>8},{:07},{:010},{:010}", n, bits, algo_name, t, x, y);
-            }
+    println!("nº bits,it nº,temps bogo (us),temps mult(us),x,y");
+    for bits in 2..MAX_BITS {
+        for n in 0..ITERS_PER_BITS {
+            eprintln!("Calculant {bits} bits (iter {n})");
+            let x = rand_with_bits(bits);
+            let y = rand_with_bits(bits);
+            let t_bogo = time(x, y, bogomult  as fn(u128, u128) -> u128);
+            let t_mult = time(x, y, u128::mul as fn(u128, u128) -> u128);
+            println!("{},{},{},{},{},{}", bits, n, t_bogo, t_mult, x, y);
         }
     }
 
