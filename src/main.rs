@@ -4,8 +4,9 @@ use std::ops::Mul;
 use std::time::Instant;
 
 fn main() {
-    const MAX_BITS: u32 = 32;
-    const ITERS_PER_BITS: u128 = 200;
+    const MAX_BITS: u32 = 5;
+    const ITERS_PER_BITS: u128 = 10000;
+    // TODO: Add trials in a way that doesn't muddy the results
 
     println!("nº bits,it nº,temps bogo (us),temps mult(us),x,y");
     for bits in 2..MAX_BITS {
@@ -18,7 +19,6 @@ fn main() {
             println!("{},{},{},{},{},{}", bits, n, t_bogo, t_mult, x, y);
         }
     }
-
 }
 
 /// Multiplica dos u128 amb complexitat extraordinaria
