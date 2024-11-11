@@ -4,27 +4,28 @@ use std::ops::Mul;
 use std::time::Instant;
 
 fn main() {
-    const MAX_BITS: u32 = 5;
-    const ITERS_PER_BITS: u128 = 10000;
-    // TODO: Add trials in a way that doesn't muddy the results
+    const BITS: u32 = 20;
+    const ITERACIONS: u128 = 100000000;
 
-    println!("nº bits,it nº,temps bogo (us),temps mult(us),x,y");
-    for bits in 2..MAX_BITS {
-        for n in 0..ITERS_PER_BITS {
-            eprintln!("Calculant {bits} bits (iter {n})");
-            let x = rand_with_bits(bits);
-            let y = rand_with_bits(bits);
-            let t_bogo = time(x, y, bogomult  as fn(u128, u128) -> u128);
-            let t_mult = time(x, y, u128::mul as fn(u128, u128) -> u128);
-            println!("{},{},{},{},{},{}", bits, n, t_bogo, t_mult, x, y);
-        }
+    println!("nº bits,it nº,temps bogo (ns),temps mult(ns),x,y");
+    for n in 0..ITERACIONS {
+        eprintln!("Calculant {BITS} bits (iter {n})");
+        let x = rand_with_bits(BITS);
+        let y = rand_with_bits(BITS);
+        let t_bogo = time(x, y, bogomult as fn(u128, u128) -> u128);
+        let t_mult = time(x, y, u128::mul as fn(u128, u128) -> u128);
+        println!("{},{},{},{},{},{}", BITS, n, t_bogo, t_mult, x, y);
     }
 }
 
 /// Multiplica dos u128 amb complexitat extraordinaria
 fn bogomult(x: u128, y: u128) -> u128 {
-    if x == 0 { return 0 }
-    if x == 1 { return y }
+    if x == 0 {
+        return 0;
+    }
+    if x == 1 {
+        return y;
+    }
 
     let mut n = 0;
     while n < bogomult(x - 1, y) + y {
@@ -33,19 +34,19 @@ fn bogomult(x: u128, y: u128) -> u128 {
     n
 }
 
-/// Retorna els millisegons que es tarda en executar `f(x, y)`
+/// Retorna els millisegons que es tarda en executar `f(x, y)` TRIALS cops
 fn time(x: u128, y: u128, f: impl Fn(u128, u128) -> u128) -> u128 {
     let start = Instant::now();
     let _ = black_box(f(x, y));
     let end = Instant::now();
 
-    (end-start).as_micros()
+    (end - start).as_nanos()
 }
 
 /// Retorna número aleatori que ocupa el número demanat de bits
 fn rand_with_bits(bits: u32) -> u128 {
     let mut small_rng = SmallRng::from_entropy();
-    small_rng.gen_range(2u128.pow(bits)..2u128.pow(bits + 1))
+    small_rng.gen_range(2u128.pow(bits - 1)..2u128.pow(bits))
 }
 
 /*
@@ -106,6 +107,6 @@ fn equivalence() {
     for _ in 0..TRIALS {
         let x = small_rng.gen();
         let y = small_rng.gen();
-        assert_eq!(x*y, bogomult(x, y));
+        assert_eq!(x * y, bogomult(x, y));
     }
 }
