@@ -10,8 +10,8 @@ fn main() {
     println!("nº bits,it nº,temps bogo (ns),temps mult(ns),x,y");
     for n in 0..ITERACIONS {
         eprintln!("Calculant {BITS} bits (iter {n})");
-        let x = rand_with_bits(BITS);
-        let y = rand_with_bits(BITS);
+        let x = rand_num_amb_bits(BITS);
+        let y = rand_num_amb_bits(BITS);
         let t_bogo = time(x, y, bogomult as fn(u128, u128) -> u128);
         let t_mult = time(x, y, u128::mul as fn(u128, u128) -> u128);
         println!("{},{},{},{},{},{}", BITS, n, t_bogo, t_mult, x, y);
@@ -44,7 +44,7 @@ fn time(x: u128, y: u128, f: impl Fn(u128, u128) -> u128) -> u128 {
 }
 
 /// Retorna número aleatori que ocupa el número demanat de bits
-fn rand_with_bits(bits: u32) -> u128 {
+fn rand_num_amb_bits(bits: u32) -> u128 {
     let mut small_rng = SmallRng::from_entropy();
     small_rng.gen_range(2u128.pow(bits - 1)..2u128.pow(bits))
 }
@@ -93,7 +93,7 @@ fn small_numbers() {
 fn random_number() {
     for bits in 0..20 {
         for _ in 0..1000 {
-            let g = rand_with_bits(bits);
+            let g = rand_num_amb_bits(bits);
             assert!(2u128.pow(bits) <= g && g <= 2u128.pow(bits + 1) - 1)
         }
     }
