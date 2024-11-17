@@ -4,22 +4,24 @@ use std::ops::Mul;
 use std::time::Instant;
 
 fn main() {
-    const BITS: u32 = 20;
-    const ITERACIONS: u128 = 100000000;
+    const ITERACIONS: u64 = 100_000;
+    const Z: u32 = 25;
+    let mut small_rng = SmallRng::from_entropy();
 
-    println!("nº bits,it nº,temps bogo (ns),temps mult(ns),x,y");
+    println!("nº bits,it nº,temps bogo (log_2, ns),temps mult(ns),x,y");
     for n in 0..ITERACIONS {
-        eprintln!("Calculant {BITS} bits (iter {n})");
-        let x = rand_num_amb_bits(BITS);
-        let y = rand_num_amb_bits(BITS);
-        let t_bogo = time(x, y, bogomult as fn(u128, u128) -> u128);
-        let t_mult = time(x, y, u128::mul as fn(u128, u128) -> u128);
-        println!("{},{},{},{},{},{}", BITS, n, t_bogo, t_mult, x, y);
+        let bits = small_rng.gen_range(0..Z);
+        let x = rand_num_amb_bits(bits);
+        let y = rand_num_amb_bits(bits);
+        //eprintln!("Multiplicant  ({n}) {bits}, {x}, {y}");
+        let t_bogo = time(x, y, bogomult as fn(u64, u64) -> u64).log2();
+        let t_mult = time(x, y, u64::mul as fn(u64, u64) -> u64).log2();
+        println!("{},{},{},{},{},{}", bits, n, t_bogo, t_mult, x, y);
     }
 }
 
-/// Multiplica dos u128 amb complexitat extraordinaria
-fn bogomult(x: u128, y: u128) -> u128 {
+/// Multiplica dos naturals amb complexitat extraordinaria
+fn bogomult(x: u64, y: u64) -> u64 {
     if x == 0 {
         return 0;
     }
@@ -34,19 +36,19 @@ fn bogomult(x: u128, y: u128) -> u128 {
     n
 }
 
-/// Retorna els millisegons que es tarda en executar `f(x, y)` TRIALS cops
-fn time(x: u128, y: u128, f: impl Fn(u128, u128) -> u128) -> u128 {
+/// Retorna els nanosegons que es tarda en executar `f(x, y)` cops
+fn time(x: u64, y: u64, f: impl Fn(u64, u64) -> u64) -> f64 {
     let start = Instant::now();
     let _ = black_box(f(x, y));
     let end = Instant::now();
 
-    (end - start).as_nanos()
+    (end - start).as_secs_f64() / 1_000_000.0
 }
 
 /// Retorna número aleatori que ocupa el número demanat de bits
-fn rand_num_amb_bits(bits: u32) -> u128 {
+fn rand_num_amb_bits(bits: u32) -> u64 {
     let mut small_rng = SmallRng::from_entropy();
-    small_rng.gen_range(2u128.pow(bits - 1)..2u128.pow(bits))
+    small_rng.gen_range(2u64.pow(bits - 1)..2u64.pow(bits))
 }
 
 /*
@@ -94,7 +96,7 @@ fn random_number() {
     for bits in 0..20 {
         for _ in 0..1000 {
             let g = rand_num_amb_bits(bits);
-            assert!(2u128.pow(bits) <= g && g <= 2u128.pow(bits + 1) - 1)
+            assert!(2u64.pow(bits) <= g && g <= 2u64.pow(bits + 1) - 1)
         }
     }
 }
