@@ -6,17 +6,15 @@ use std::time::Instant;
 fn main() {
     const ITERACIONS: u64 = 100_000;
     const Z: u32 = 25;
-    let mut small_rng = SmallRng::from_entropy();
 
-    println!("nº bits,it nº,temps bogo (log_2, ns),temps mult(ns),x,y");
+    println!("it nº,temps bogo (log_2; ms),temps mult(log_2; ms),x,y");
     for n in 0..ITERACIONS {
-        let bits = small_rng.gen_range(0..Z);
-        let x = rand_num_amb_bits(bits);
-        let y = rand_num_amb_bits(bits);
-        //eprintln!("Multiplicant  ({n}) {bits}, {x}, {y}");
+        let x = rand_num_amb_bits(Z);
+        let y = rand_num_amb_bits(Z);
+        eprintln!("{n}/{ITERACIONS}");
         let t_bogo = time(x, y, bogomult as fn(u64, u64) -> u64).log2();
         let t_mult = time(x, y, u64::mul as fn(u64, u64) -> u64).log2();
-        println!("{},{},{},{},{},{}", bits, n, t_bogo, t_mult, x, y);
+        println!("{},{:.5},{:.5},{},{}", n, t_bogo, t_mult, x, y);
     }
 }
 
@@ -42,7 +40,7 @@ fn time(x: u64, y: u64, f: impl Fn(u64, u64) -> u64) -> f64 {
     let _ = black_box(f(x, y));
     let end = Instant::now();
 
-    (end - start).as_secs_f64() / 1_000_000.0
+    (end - start).as_nanos() as f64
 }
 
 /// Retorna número aleatori que ocupa el número demanat de bits
